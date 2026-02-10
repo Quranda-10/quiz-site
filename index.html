@@ -1,130 +1,192 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مضيف المسابقة</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Arial; margin: 0; background:#0b1220; color:#e5e7eb; }
+    header { padding:16px 18px; background:#111827; border-bottom:1px solid #243047; }
+    h1 { margin:0; font-size:18px; }
+    .wrap { padding:16px 18px; max-width:900px; margin:0 auto; }
+    .card { background:#111827; border:1px solid #243047; border-radius:12px; padding:14px; margin-bottom:12px; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    input, textarea, select { background:#0b1220; color:#e5e7eb; border:1px solid #243047; border-radius:10px; padding:10px 12px; }
+    textarea { width:100%; min-height:110px; }
+    button { background:#2563eb; color:white; border:none; border-radius:10px; padding:10px 12px; cursor:pointer; }
+    button.secondary { background:#374151; }
+    button.danger { background:#dc2626; }
+    .grid { display:grid; grid-template-columns: 1fr auto auto; gap:10px; align-items:center; }
+    .pill { font-size:12px; opacity:.85; }
+    .muted { opacity:.8; }
+  </style>
+</head>
+<body>
+  <header><h1>مضيف المسابقة <span class="pill muted">— حفظ تلقائي</span></h1></header>
 
-wrap.className = "grid";
-  q.players.forEach(p=>{
-    const name = document.createElement("div");
-    name.innerHTML = <strong>${escapeHtml(p.name)}</strong> <span class="pill">${p.points} نقطة</span>;
+  <div class="wrap">
+    <div class="card">
+      <div class="row">
+        <select id="quizSelect"></select>
+        <input id="quizName" placeholder="اسم مسابقة جديدة" />
+        <button id="createQuiz">إنشاء</button>
+        <button id="deleteQuiz" class="danger">حذف</button>
+      </div>
+      <div class="muted" style="margin-top:8px;">تقدر تسوي أكثر من مسابقة وتبقى محفوظة على نفس الجهاز/المتصفح.</div>
+    </div>
 
-    const minus = document.createElement("button");
-    minus.textContent = "−";
-    minus.onclick = ()=>{ p.points = Math.max(0, p.points-1); save(state); renderPlayers(); };
+    <div class="card">
+      <div class="row">
+        <input id="playerName" placeholder="اسم المتسابق" />
+        <button id="addPlayer">إضافة</button>
+        <button id="resetPoints" class="secondary">تصفير نقاط هذه المسابقة</button>
+      </div>
+      <div id="players" style="margin-top:12px;"></div>
+    </div>
 
-    const plus = document.createElement("button");
-    plus.textContent = "+";
-    plus.onclick = ()=>{ p.points += 1; save(state); renderPlayers(); };
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div><strong>الأسئلة</strong> <span class="pill muted">(سطر لكل سؤال)</span></div>
+      </div>
+      <textarea id="questions" placeholder="اكتب الأسئلة هنا... كل سطر سؤال"></textarea>
+    </div>
+  </div>
 
-    wrap.appendChild(name);
-    wrap.appendChild(minus);
-    wrap.appendChild(plus);
-  });
-  playersDiv.appendChild(wrap);
+  <script>
+    const LS_KEY = "ramadan_quiz_host_v1";
 
-  const resetRow = document.createElement("div");
-  resetRow.className = "row";
-  const resetBtn = document.createElement("button");
-  resetBtn.textContent = "تصفير نقاط هذه المسابقة";
-  resetBtn.className = "danger";
-  resetBtn.onclick = ()=>{
-    if(confirm("تأكيد تصفير النقاط؟")){
-      q.players.forEach(p=>p.points=0);
-      save(state); renderPlayers();
+    const $ = (id) => document.getElementById(id);
+    const quizSelect = $("quizSelect");
+    const quizName = $("quizName");
+    const createQuiz = $("createQuiz");
+    const deleteQuiz = $("deleteQuiz");
+    const playerName = $("playerName");
+    const addPlayer = $("addPlayer");
+    const resetPoints = $("resetPoints");
+    const playersDiv = $("players");
+    const questions = $("questions");
+
+    const load = () => {
+      try { return JSON.parse(localStorage.getItem(LS_KEY) || "") } catch { return null }
+    };
+    const save = (state) => localStorage.setItem(LS_KEY, JSON.stringify(state));
+
+    const state = load() || { current: null, quizzes: {} };
+
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+    const currentQuiz = () => state.current ? state.quizzes[state.current] : null;
+
+    function renderQuizSelect() {
+      const ids = Object.keys(state.quizzes);
+      quizSelect.innerHTML = "";
+      ids.forEach(id => {
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = state.quizzes[id].name;
+        quizSelect.appendChild(opt);
+      });
+      if (!state.current && ids.length) state.current = ids[0];
+      quizSelect.value = state.current || "";
     }
-  };
-  resetRow.appendChild(resetBtn);
-  playersDiv.appendChild(resetRow);
-}
 
-function renderQuestions(){
-  const q = currentQuiz();
-  if(!q){ questions.value = ""; questions.disabled = true; return; }
-  questions.disabled = false;
-  questions.value = q.questions || "";
-}
+    function renderPlayers() {
+      const q = currentQuiz();
+      playersDiv.innerHTML = "";
+      if (!q) { playersDiv.textContent = "ابدأ بإنشاء مسابقة."; return; }
 
-function renderAll(){
-  renderQuizSelect();
-  renderPlayers();
-  renderQuestions();
-}
+      const wrap = document.createElement("div");
+      wrap.className = "grid";
 
-createQuiz.onclick = ()=>{
-  const name = (quizName.value || "").trim();
-  if(!name){ alert("اكتب اسم المسابقة"); return; }
-  const id = uid();
-  state.quizzes[id] = { name, players: [], questions: "" };
-  state.current = id;
-  quizName.value = "";
-  save(state);
-  renderAll();
-};
+      q.players.forEach((p, idx) => {
+        const name = document.createElement("div");
+        name.innerHTML = `${escapeHtml(p.name)} <span class="pill muted">(${p.points} نقطة)</span>`;
 
-quizSelect.onchange = ()=>{
-  state.current = quizSelect.value || null;
-  save(state);
-  renderAll();
-};
+        const minus = document.createElement("button");
+        minus.className = "secondary";
+        minus.textContent = "−";
+        minus.onclick = () => { p.points = Math.max(0, p.points - 1); save(state); renderPlayers(); };
 
-deleteQuiz.onclick = ()=>{
-  if(!state.current) return;
-  const q = currentQuiz();
-  if(!q) return;
-  if(confirm(`تأكيد حذف: ${q.name} ؟`)){
-    delete state.quizzes[state.current];
-    state.current = null;
-    save(state);
+        const plus = document.createElement("button");
+        plus.textContent = "+";
+        plus.onclick = () => { p.points += 1; save(state); renderPlayers(); };
+
+        wrap.appendChild(name);
+        wrap.appendChild(minus);
+        wrap.appendChild(plus);
+      });
+
+      playersDiv.appendChild(wrap);
+    }
+
+    function renderQuestions() {
+      const q = currentQuiz();
+      if (!q) { questions.value = ""; questions.disabled = true; return; }
+      questions.disabled = false;
+      questions.value = q.questions || "";
+    }
+
+    function renderAll() {
+      renderQuizSelect();
+      renderPlayers();
+      renderQuestions();
+    }
+
+    createQuiz.onclick = () => {
+      const name = (quizName.value || "").trim();
+      if (!name) return alert("اكتب اسم المسابقة");
+      const id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
+      state.quizzes[id] = { name, players: [], questions: "" };
+      state.current = id;
+      quizName.value = "";
+      save(state);
+      renderAll();
+    };
+
+    deleteQuiz.onclick = () => {
+      const q = currentQuiz();
+      if (!q) return;
+      if (!confirm(`تأكيد حذف: ${q.name} ؟`)) return;
+      delete state.quizzes[state.current];
+      state.current = Object.keys(state.quizzes)[0] || null;
+      save(state);
+      renderAll();
+    };
+
+    quizSelect.onchange = () => {
+      state.current = quizSelect.value || null;
+      save(state);
+      renderAll();
+    };
+
+    addPlayer.onclick = () => {
+      const q = currentQuiz();
+      if (!q) return alert("أنشئ مسابقة أولاً");
+      const name = (playerName.value || "").trim();
+      if (!name) return;
+      q.players.push({ name, points: 0 });
+      playerName.value = "";
+      save(state);
+      renderPlayers();
+    };
+
+    resetPoints.onclick = () => {
+      const q = currentQuiz();
+      if (!q) return;
+      if (!confirm("تأكيد تصفير النقاط؟")) return;
+      q.players.forEach(p => p.points = 0);
+      save(state);
+      renderPlayers();
+    };
+
+    questions.addEventListener("input", () => {
+      const q = currentQuiz();
+      if (!q) return;
+      q.questions = questions.value;
+      save(state);
+    });
+
     renderAll();
-  }
-};
-
-addPlayer.onclick = ()=>{
-  const q = currentQuiz();
-  if(!q){ alert("أنشئ مسابقة أولاً"); return; }
-  const name = (playerName.value || "").trim();
-  if(!name) return;
-  q.players.push({ id: uid(), name, points: 0 });
-  playerName.value = "";
-  save(state);
-  renderPlayers();
-};
-
-questions.addEventListener("input", ()=>{
-  const q = currentQuiz();
-  if(!q) return;
-  q.questions = questions.value;
-  save(state);
-});
-
-exportData.onclick = ()=>{
-  const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "ramadan_quiz_host_backup.json";
-  a.click();
-  URL.revokeObjectURL(a.href);
-};
-
-importFile.onchange = async ()=>{
-  const file = importFile.files?.[0];
-  if(!file) return;
-  const text = await file.text();
-  try{
-    const data = JSON.parse(text);
-    if(!data  typeof data !== "object"  !data.quizzes) throw new Error();
-    state = data;
-    save(state);
-    renderAll();
-    alert("تم الاستيراد بنجاح");
-  }catch{
-    alert("ملف غير صالح");
-  }finally{
-    importFile.value = "";
-  }
-};
-
-function escapeHtml(s){
-  return s.replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
-}
-
-renderAll();
-</script>
+  </script>
 </body>
 </html>
