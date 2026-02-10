@@ -3,57 +3,256 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>مضيف المسابقة</title>
+  <title>فوازير أنس 3</title>
+
+  <!-- Arabic nice font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Arial; margin: 0; background:#0b1220; color:#e5e7eb; }
-    header { padding:16px 18px; background:#111827; border-bottom:1px solid #243047; }
-    h1 { margin:0; font-size:18px; }
-    .wrap { padding:16px 18px; max-width:900px; margin:0 auto; }
-    .card { background:#111827; border:1px solid #243047; border-radius:12px; padding:14px; margin-bottom:12px; }
-    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    input, textarea, select { background:#0b1220; color:#e5e7eb; border:1px solid #243047; border-radius:10px; padding:10px 12px; }
-    textarea { width:100%; min-height:110px; }
-    button { background:#2563eb; color:white; border:none; border-radius:10px; padding:10px 12px; cursor:pointer; }
-    button.secondary { background:#374151; }
-    button.danger { background:#dc2626; }
-    .grid { display:grid; grid-template-columns: 1fr auto auto; gap:10px; align-items:center; }
-    .pill { font-size:12px; opacity:.85; }
-    .muted { opacity:.8; }
+    :root{
+      --bg1:#070A12;
+      --bg2:#0B1630;
+      --card:#0E1B33cc;
+      --stroke:#22385f;
+      --text:#EAF0FF;
+      --muted:#B8C4E6;
+      --gold:#F7D47A;
+      --blue:#4FA6FF;
+      --danger:#FF4D4D;
+      --soft:#0d2b55;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:"Cairo", system-ui, -apple-system, "Segoe UI", Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(247,212,122,.22), transparent 60%),
+        radial-gradient(900px 500px at 85% 30%, rgba(79,166,255,.20), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      min-height:100vh;
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(10,18,40,.85), rgba(10,18,40,.55));
+      border-bottom:1px solid rgba(34,56,95,.6);
+    }
+    .header-inner{
+      max-width:980px;
+      margin:0 auto;
+      padding:16px 18px 14px;
+      text-align:center;
+    }
+    .title{
+      margin:0;
+      font-size:28px;
+      font-weight:800;
+      letter-spacing:.2px;
+      color:var(--gold);
+      text-shadow: 0 8px 30px rgba(247,212,122,.20);
+    }
+    .subtitle{
+      margin:6px 0 0;
+      font-size:13px;
+      color:var(--muted);
+      opacity:.95;
+    }
+
+    .wrap{
+      max-width:980px;
+      margin:0 auto;
+      padding:18px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+    }
+
+    .card{
+      background: var(--card);
+      border:1px solid rgba(34,56,95,.75);
+      border-radius: var(--radius);
+      padding:14px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2{
+      margin:0 0 10px;
+      font-size:16px;
+      font-weight:800;
+      color:var(--text);
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    input, textarea, select{
+      width:auto;
+      background: rgba(8,16,34,.85);
+      color:var(--text);
+      border:1px solid rgba(34,56,95,.9);
+      border-radius: 14px;
+      padding:11px 12px;
+      outline:none;
+      font-family:inherit;
+      font-size:15px;
+    }
+    input::placeholder, textarea::placeholder{ color: rgba(184,196,230,.75); }
+
+    select{ min-width: 210px; }
+
+    button{
+      border:0;
+      border-radius: 14px;
+      padding:11px 12px;
+      font-family:inherit;
+      font-weight:800;
+      font-size:14px;
+      cursor:pointer;
+      transition: transform .06s ease, filter .12s ease;
+      user-select:none;
+    }
+    button:active{ transform: translateY(1px); }
+
+    .btn-primary{
+      background: linear-gradient(180deg, #2e8fff, #1b6ee9);
+      color:white;
+    }
+    .btn-soft{
+      background: rgba(55,65,81,.55);
+      color:var(--text);
+      border:1px solid rgba(34,56,95,.75);
+    }
+    .btn-danger{
+      background: linear-gradient(180deg, #ff6b6b, #e53e3e);
+      color:white;
+    }
+    .btn-gold{
+      background: linear-gradient(180deg, #ffd98a, #e9b84f);
+      color:#1b1b1b;
+    }
+
+    .hint{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    /* Players list */
+    .players{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:12px;
+    }
+    .player{
+      display:grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap:10px;
+      align-items:center;
+      padding:10px;
+      border-radius: 16px;
+      background: rgba(8,16,34,.70);
+      border:1px solid rgba(34,56,95,.65);
+    }
+    .pname{
+      font-weight:800;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .ppoints{
+      color: var(--gold);
+      font-weight:900;
+      min-width:86px;
+      text-align:center;
+    }
+    .tiny{
+      padding:9px 11px;
+      border-radius: 14px;
+      font-size:14px;
+      font-weight:900;
+    }
+
+    /* Auto-grow textarea */
+    textarea{
+      width:100%;
+      min-height: 140px;
+      resize: none;
+      overflow: hidden; /* important: no inner scroll */
+      line-height: 1.7;
+    }
+
+    /* Small screen tweaks */
+    @media (max-width: 520px){
+      .title{ font-size:24px; }
+      .player{ grid-template-columns: 1fr auto auto; }
+      .ppoints{ grid-column: 1 / -1; text-align:right; min-width:auto; }
+    }
   </style>
 </head>
+
 <body>
-  <header><h1>مضيف المسابقة <span class="pill muted">— حفظ تلقائي</span></h1></header>
+  <header>
+    <div class="header-inner">
+      <h1 class="title">فوازير أنس 3</h1>
+      <p class="subtitle">إدارة مسابقات + نقاط + أسئلة — حفظ تلقائي على نفس الجهاز</p>
+    </div>
+  </header>
 
   <div class="wrap">
-    <div class="card">
-      <div class="row">
-        <select id="quizSelect"></select>
-        <input id="quizName" placeholder="اسم مسابقة جديدة" />
-        <button id="createQuiz">إنشاء</button>
-        <button id="deleteQuiz" class="danger">حذف</button>
-      </div>
-      <div class="muted" style="margin-top:8px;">معكم الحكم العادل الوالي أنس.</div>
-    </div>
+    <div class="grid">
 
-    <div class="card">
-      <div class="row">
-        <input id="playerName" placeholder="اسم المتسابق" />
-        <button id="addPlayer">إضافة</button>
-        <button id="resetPoints" class="secondary">تصفير نقاط هذه المسابقة</button>
+      <div class="card">
+        <h2>المسابقات</h2>
+        <div class="row">
+          <select id="quizSelect"></select>
+          <input id="quizName" placeholder="اسم مسابقة جديدة" />
+          <button id="createQuiz" class="btn-gold">إنشاء</button>
+          <button id="deleteQuiz" class="btn-danger">حذف</button>
+        </div>
+        <div class="hint">تقدر تسوي أكثر من مسابقة، وكلها تبقى محفوظة على نفس الجهاز.</div>
       </div>
-      <div id="players" style="margin-top:12px;"></div>
-    </div>
 
-    <div class="card">
-      <div class="row" style="justify-content:space-between;">
-        <div><strong>الأسئلة</strong> <span class="pill muted">(سطر لكل سؤال)</span></div>
+      <div class="card">
+        <h2>المتسابقين والنقاط</h2>
+        <div class="row">
+          <input id="playerName" placeholder="اسم المتسابق" />
+          <button id="addPlayer" class="btn-primary">إضافة</button>
+          <button id="resetPoints" class="btn-soft">تصفير نقاط المسابقة</button>
+        </div>
+        <div id="players" class="players"></div>
       </div>
-      <textarea id="questions" placeholder=""></textarea>
+
+      <div class="card">
+        <h2>الأسئلة</h2>
+        <div class="hint">اكتب كل سؤال في سطر. الخانة تكبر تلقائيًا عشان تشوف كل الأسئلة.</div>
+        <textarea id="questions" placeholder="مثال:
+1) من أول من أسلم من الصبيان؟
+2) ما هي السورة التي لا تبدأ ببسم الله؟
+..."></textarea>
+      </div>
+
     </div>
   </div>
 
   <script>
-    const LS_KEY = "ramadan_quiz_host_v1";
+    const LS_KEY = "ramadan_quiz_host_v2";
 
     const $ = (id) => document.getElementById(id);
     const quizSelect = $("quizSelect");
@@ -73,9 +272,21 @@
 
     const state = load() || { current: null, quizzes: {} };
 
-    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"
+    }[c]));
 
     const currentQuiz = () => state.current ? state.quizzes[state.current] : null;
+
+    function ensureOneQuizIfEmpty(){
+      const ids = Object.keys(state.quizzes);
+      if (!ids.length){
+        const id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
+        state.quizzes[id] = { name: "المسابقة 1", players: [], questions: "" };
+        state.current = id;
+        save(state);
+      }
+    }
 
     function renderQuizSelect() {
       const ids = Object.keys(state.quizzes);
@@ -93,37 +304,88 @@
     function renderPlayers() {
       const q = currentQuiz();
       playersDiv.innerHTML = "";
-      if (!q) { playersDiv.textContent = "ابدأ بإنشاء مسابقة."; return; }
+      if (!q) {
+        playersDiv.textContent = "ابدأ بإنشاء مسابقة.";
+        return;
+      }
 
-      const wrap = document.createElement("div");
-      wrap.className = "grid";
+      if (!q.players.length){
+        const empty = document.createElement("div");
+        empty.className = "hint";
+        empty.textContent = "أضف متسابقين عشان تبدأ النقاط.";
+        playersDiv.appendChild(empty);
+        return;
+      }
 
       q.players.forEach((p, idx) => {
+        const row = document.createElement("div");
+        row.className = "player";
+
         const name = document.createElement("div");
-        name.innerHTML = `${escapeHtml(p.name)} <span class="pill muted">(${p.points} نقطة)</span>`;
+        name.className = "pname";
+        name.innerHTML = escapeHtml(p.name);
+
+        const points = document.createElement("div");
+        points.className = "ppoints";
+        points.textContent = `${p.points} نقطة`;
 
         const minus = document.createElement("button");
-        minus.className = "secondary";
+        minus.className = "btn-soft tiny";
         minus.textContent = "−";
-        minus.onclick = () => { p.points = Math.max(0, p.points - 1); save(state); renderPlayers(); };
+        minus.onclick = () => {
+          p.points = Math.max(0, p.points - 1);
+          save(state);
+          renderPlayers();
+        };
 
         const plus = document.createElement("button");
+        plus.className = "btn-primary tiny";
         plus.textContent = "+";
-        plus.onclick = () => { p.points += 1; save(state); renderPlayers(); };
+        plus.onclick = () => {
+          p.points += 1;
+          save(state);
+          renderPlayers();
+        };
 
-        wrap.appendChild(name);
-        wrap.appendChild(minus);
-        wrap.appendChild(plus);
+        const del = document.createElement("button");
+        del.className = "btn-danger tiny";
+        del.textContent = "حذف";
+        del.onclick = () => {
+          if (!confirm(`حذف المتسابق: ${p.name} ؟`)) return;
+          q.players.splice(idx, 1);
+          save(state);
+          renderPlayers();
+        };
+
+        // On small screens we hide one button in grid; keep all anyway:
+        row.appendChild(name);
+        row.appendChild(points);
+        row.appendChild(minus);
+        row.appendChild(plus);
+        row.appendChild(del);
+
+        // If narrow, grid template changes; keep order readable:
+        playersDiv.appendChild(row);
       });
+    }
 
-      playersDiv.appendChild(wrap);
+    function autoGrowTextarea(el){
+      // grows downward; no internal scroll
+      el.style.height = "auto";
+      el.style.height = (el.scrollHeight + 2) + "px";
     }
 
     function renderQuestions() {
       const q = currentQuiz();
-      if (!q) { questions.value = ""; questions.disabled = true; return; }
+      if (!q) {
+        questions.value = "";
+        questions.disabled = true;
+        autoGrowTextarea(questions);
+        return;
+      }
       questions.disabled = false;
       questions.value = q.questions || "";
+      autoGrowTextarea(questions);
     }
 
     function renderAll() {
@@ -150,6 +412,7 @@
       delete state.quizzes[state.current];
       state.current = Object.keys(state.quizzes)[0] || null;
       save(state);
+      ensureOneQuizIfEmpty();
       renderAll();
     };
 
@@ -173,7 +436,7 @@
     resetPoints.onclick = () => {
       const q = currentQuiz();
       if (!q) return;
-      if (!confirm("تأكيد تصفير النقاط؟")) return;
+      if (!confirm("تأكيد تصفير نقاط المسابقة؟")) return;
       q.players.forEach(p => p.points = 0);
       save(state);
       renderPlayers();
@@ -184,8 +447,11 @@
       if (!q) return;
       q.questions = questions.value;
       save(state);
+      autoGrowTextarea(questions);
     });
 
+    // init
+    ensureOneQuizIfEmpty();
     renderAll();
   </script>
 </body>
