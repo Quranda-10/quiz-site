@@ -1,0 +1,130 @@
+
+wrap.className = "grid";
+  q.players.forEach(p=>{
+    const name = document.createElement("div");
+    name.innerHTML = <strong>${escapeHtml(p.name)}</strong> <span class="pill">${p.points} نقطة</span>;
+
+    const minus = document.createElement("button");
+    minus.textContent = "−";
+    minus.onclick = ()=>{ p.points = Math.max(0, p.points-1); save(state); renderPlayers(); };
+
+    const plus = document.createElement("button");
+    plus.textContent = "+";
+    plus.onclick = ()=>{ p.points += 1; save(state); renderPlayers(); };
+
+    wrap.appendChild(name);
+    wrap.appendChild(minus);
+    wrap.appendChild(plus);
+  });
+  playersDiv.appendChild(wrap);
+
+  const resetRow = document.createElement("div");
+  resetRow.className = "row";
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "تصفير نقاط هذه المسابقة";
+  resetBtn.className = "danger";
+  resetBtn.onclick = ()=>{
+    if(confirm("تأكيد تصفير النقاط؟")){
+      q.players.forEach(p=>p.points=0);
+      save(state); renderPlayers();
+    }
+  };
+  resetRow.appendChild(resetBtn);
+  playersDiv.appendChild(resetRow);
+}
+
+function renderQuestions(){
+  const q = currentQuiz();
+  if(!q){ questions.value = ""; questions.disabled = true; return; }
+  questions.disabled = false;
+  questions.value = q.questions || "";
+}
+
+function renderAll(){
+  renderQuizSelect();
+  renderPlayers();
+  renderQuestions();
+}
+
+createQuiz.onclick = ()=>{
+  const name = (quizName.value || "").trim();
+  if(!name){ alert("اكتب اسم المسابقة"); return; }
+  const id = uid();
+  state.quizzes[id] = { name, players: [], questions: "" };
+  state.current = id;
+  quizName.value = "";
+  save(state);
+  renderAll();
+};
+
+quizSelect.onchange = ()=>{
+  state.current = quizSelect.value || null;
+  save(state);
+  renderAll();
+};
+
+deleteQuiz.onclick = ()=>{
+  if(!state.current) return;
+  const q = currentQuiz();
+  if(!q) return;
+  if(confirm(`تأكيد حذف: ${q.name} ؟`)){
+    delete state.quizzes[state.current];
+    state.current = null;
+    save(state);
+    renderAll();
+  }
+};
+
+addPlayer.onclick = ()=>{
+  const q = currentQuiz();
+  if(!q){ alert("أنشئ مسابقة أولاً"); return; }
+  const name = (playerName.value || "").trim();
+  if(!name) return;
+  q.players.push({ id: uid(), name, points: 0 });
+  playerName.value = "";
+  save(state);
+  renderPlayers();
+};
+
+questions.addEventListener("input", ()=>{
+  const q = currentQuiz();
+  if(!q) return;
+  q.questions = questions.value;
+  save(state);
+});
+
+exportData.onclick = ()=>{
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "ramadan_quiz_host_backup.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+importFile.onchange = async ()=>{
+  const file = importFile.files?.[0];
+  if(!file) return;
+  const text = await file.text();
+  try{
+    const data = JSON.parse(text);
+    if(!data  typeof data !== "object"  !data.quizzes) throw new Error();
+    state = data;
+    save(state);
+    renderAll();
+    alert("تم الاستيراد بنجاح");
+  }catch{
+    alert("ملف غير صالح");
+  }finally{
+    importFile.value = "";
+  }
+};
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+renderAll();
+</script>
+</body>
+</html>
