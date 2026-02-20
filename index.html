@@ -42,35 +42,6 @@
       min-height:100vh;
     }
 
-    header{
-      position:sticky;
-      top:0;
-      z-index:10;
-      backdrop-filter: blur(10px);
-      background: linear-gradient(180deg, rgba(10,18,40,.85), rgba(10,18,40,.55));
-      border-bottom:1px solid rgba(34,56,95,.6);
-    }
-    .header-inner{
-      max-width:980px;
-      margin:0 auto;
-      padding:16px 18px 14px;
-      text-align:center;
-    }
-    .title{
-      margin:0;
-      font-size:28px;
-      font-weight:800;
-      letter-spacing:.2px;
-      color:var(--gold);
-      text-shadow: 0 8px 30px rgba(247,212,122,.20);
-    }
-    .subtitle{
-      margin:6px 0 0;
-      font-size:13px;
-      color:var(--muted);
-      opacity:.95;
-    }
-
     .wrap{ max-width:980px; margin:0 auto; padding:18px; }
     .grid{ display:grid; grid-template-columns: 1fr; gap:14px; }
 
@@ -240,41 +211,74 @@
       .player{ flex:1 1 100%; min-width: 0; max-width: none; }
       .btn-del{ min-width:74px; }
     }
+
+    /* ✅ NEW: make the top 3 cards in one row (header/players/quizzes) */
+    .top-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:14px;
+    }
+    @media (max-width: 920px){
+      .top-grid{ grid-template-columns: 1fr; }
+    }
+
+    /* ✅ NEW: header card look (same as other cards) */
+    .hero-title{
+      margin:0;
+      font-size:26px;
+      font-weight:800;
+      letter-spacing:.2px;
+      color:var(--gold);
+      text-shadow: 0 8px 30px rgba(247,212,122,.20);
+    }
+    .hero-subtitle{
+      margin:8px 0 0;
+      font-size:13px;
+      color:var(--muted);
+      opacity:.95;
+      line-height:1.7;
+    }
   </style>
 </head>
 
 <body>
-  <header>
-    <div class="header-inner">
-      <h1 class="title">فوازير أنس 3</h1>
-      <p class="subtitle"> الموسم الأول : أمي 👑 
-      <br>الموسم الثاني : هيون 👑</p>
-    </div>
-  </header>
 
   <div class="wrap">
     <div class="grid">
 
-      <div class="card">
-        <h2>المسابقات</h2>
-        <div class="row">
-          <select id="quizSelect"></select>
-          <input id="quizName" placeholder="اسم مسابقة جديدة" />
-          <button id="createQuiz" class="btn-gold">إنشاء</button>
-          <button id="deleteQuiz" class="btn-danger">حذف</button>
-        </div>
-        <div class="hint"></div>
-      </div>
+      <!-- ✅ Header صار "كرت" ثابت داخل الصفحة (ما عاد sticky) + صار مع الباقي 3 مربعات -->
+      <div class="top-grid">
 
-      <div class="card">
-        <h2>المتسابقين والنقاط</h2>
-        <div class="row">
-          <input id="playerName" placeholder="اسم المتسابق" />
-          <button id="addPlayer" class="btn-primary">إضافة</button>
-          <button id="resetPoints" class="btn-soft">تصفير نقاط المسابقة</button>
+        <div class="card">
+          <h1 class="hero-title">فوازير أنس 3</h1>
+          <p class="hero-subtitle">
+            الموسم الأول : أمي 👑
+            <br>الموسم الثاني : هيون 👑
+          </p>
         </div>
 
-        <div id="players" class="players"></div>
+        <div class="card">
+          <h2>المسابقات</h2>
+          <div class="row">
+            <select id="quizSelect"></select>
+            <input id="quizName" placeholder="اسم مسابقة جديدة" />
+            <button id="createQuiz" class="btn-gold">إنشاء</button>
+            <button id="deleteQuiz" class="btn-danger">حذف</button>
+          </div>
+          <div class="hint"></div>
+        </div>
+
+        <div class="card">
+          <h2>المتسابقين والنقاط</h2>
+          <div class="row">
+            <input id="playerName" placeholder="اسم المتسابق" />
+            <button id="addPlayer" class="btn-primary">إضافة</button>
+            <button id="resetPoints" class="btn-soft">تصفير نقاط المسابقة</button>
+          </div>
+
+          <div id="players" class="players"></div>
+        </div>
+
       </div>
 
       <div class="card">
